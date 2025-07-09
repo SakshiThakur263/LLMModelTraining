@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Text to Audio";
+}
+
+<h2>🎤 Text to Speech</h2>
+
+@if (!string.IsNullOrEmpty(ViewBag.Error))
+{
+    <div style="color:red">@ViewBag.Error</div>
+}
+
+<form method="post" asp-controller="TextToAudio" asp-action="Convert">
+    <textarea name="text" rows="4" cols="50" placeholder="Enter your text..." required>@ViewBag.OriginalText</textarea><br /><br />
+
+    <label>Select Voice:</label>
+    <select name="voice">
+        <option value="Default">Default</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+    </select><br /><br />
+
+    <button type="submit">🔊 Convert</button>
+</form>
+
+@if (ViewBag.AudioPath != null)
+{
+    <hr />
+    <h4>🗣️ Audio Output</h4>
+    <audio controls autoplay>
+        <source src="@ViewBag.AudioPath" type="audio/wav" />
+        Your browser does not support the audio element.
+    </audio>
+}

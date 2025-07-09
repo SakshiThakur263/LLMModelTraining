@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Text to Summary";
+}
+
+<h2>📝 Text Summarizer</h2>
+
+<form method="post" asp-controller="TextSummary" asp-action="Summarize">
+    <textarea name="inputText" rows="10" cols="80" placeholder="Enter long text here..." required>@ViewBag.Original</textarea>
+    <br /><br />
+    <button type="submit">Summarize</button>
+</form>
+
+@if (ViewBag.Summary != null)
+{
+    <h3>📋 Summary:</h3>
+    <div style="background-color: #f2f2f2; padding: 10px; border-radius: 5px;">
+        @ViewBag.Summary
+    </div>
+}
+
+@if (ViewBag.Error != null)
+{
+    <p style="color:red;">@ViewBag.Error</p>
+}

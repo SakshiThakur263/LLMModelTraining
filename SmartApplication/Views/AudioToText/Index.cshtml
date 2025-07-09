@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "🎤 Real-time Voice to Text";
+}
+
+<h2>🎤 Real-time Voice to Text</h2>
+
+<button id="startBtn">Start Recording</button>
+<button id="stopBtn" disabled>Stop</button>
+
+<p id="transcriptResult" style="white-space: pre-line; margin-top: 20px;"></p>
+
+<!-- Include RecordRTC library -->
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script>
+    let recorder;
+    let stream;
+
+    document.getElementById("startBtn").onclick = async () => {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        recorder = RecordRTC(stream, {
+            type: 'audio',
+            mimeType: 'audio/wav',
+            recorderType: StereoAudioRecorder,
+            desiredSampRate: 16000,
+            numberOfAudioChannels: 1 // Force mono for Windows Speech Recognition
+        });
+
+        recorder.startRecording();
+
+        document.getElementById("stopBtn").disabled = false;
+        document.getElementById("startBtn").disabled = true;
+    };
+
+    document.getElementById("stopBtn").onclick = () => {
+        recorder.stopRecording(async () => {
+            const audioBlob = recorder.getBlob();
+            const formData = new FormData();
+            formData.append("audioFile", audioBlob, "recorded.wav");
+
+            const response = await fetch("/AudioToText/Transcribe", {
+                method: "POST",
+                body: formData
+            });
+
+            const resultText = await response.text();
+            document.getElementById("transcriptResult").innerText = "📝 Transcribed Text:\n" + resultText;
+
+            stream.getTracks().forEach(track => track.stop());
+
+            document.getElementById("stopBtn").disabled = true;
+            document.getElementById("startBtn").disabled = false;
+        });
+    };
+</script>
